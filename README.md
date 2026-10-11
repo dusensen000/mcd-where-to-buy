@@ -49,8 +49,6 @@ node src/cli.js --city 上海 --keyword 人民广场 --items '[{"query":"巨无�
 
 返回的 `status=quoted` 才进入排名。`unavailable` 表示该店菜单没有同款；`unverified` 表示官方详情或核价不足以确认同款。`couponCheck=partial` 表示达到每店 8 次试算上限，不能断言已找到绝对最优用券方案。
 
-[`examples/demo-output.json`](examples/demo-output.json) 是 2026 年 10 月 10 日对上海人民广场附近 5 家门店的真实只读查询快照，方便查看完整输出格式；其中价格和可售状态会变化。
-
 ## 作为 MCP Server 接入
 
 本项目通过 **stdio** 向 MCP 客户端提供两个工具：
@@ -78,7 +76,7 @@ node src/cli.js --city 上海 --keyword 人民广场 --items '[{"query":"巨无�
 - `README.md`：介绍、安装、示例与目标用户。
 - `CONTEST_DECLARATION.md`：直接取自活动官方仓库，内容未修改。
 - `MCP_INTEGRATION.md`：实际使用的 Server、Tool、调用流程和业务价值。
-- `mcp-config.example.json`：脱敏配置，只有环境变量占位符。
+- `mcp-config.example.json`：脱敏配置，只使用环境变量占位符提供本地路径和 Token。
 - `SKILL.md` 与 `src/`：可运行的 Skill 和 MCP Server 源码。
 
 测试：`npm test`。公开报名时，先将本项目上传到你自己的 Public GitHub 仓库，再按[比赛 README](https://github.com/M-China/mcd-developer-innovation-challenge)的格式提交 Issue。不要提交 Token、真实地址或个人订单数据。
