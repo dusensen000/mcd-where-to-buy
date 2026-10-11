@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Compare the same McDonald's China meal across nearby stores using the official MCP server.",
+  "description": "Find verified alternatives when a McDonald's China meal is absent from a nearby store menu.",
   "bin": {
     "mcd-where-to-buy": "./src/server.js"
   },

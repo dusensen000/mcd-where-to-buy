@@ -1,6 +1,6 @@
 import { McdClient } from './upstream.js';
 
-const required = ['query-nearby-stores', 'query-meals', 'query-meal-detail', 'calculate-price', 'query-store-coupons'];
+const required = ['query-nearby-stores', 'query-meals', 'query-meal-detail', 'calculate-price'];
 const client = new McdClient();
 try {
   const tools = await client.listTools();

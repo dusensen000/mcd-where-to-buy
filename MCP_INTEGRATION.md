@@ -1,55 +1,52 @@
 # 麦当劳 MCP 集成说明
 
-## Server 与身份验证
+## 官方 Server
 
-- 官方 Server：`https://mcp.mcd.cn`
+- 地址：`https://mcp.mcd.cn`
 - 传输：Streamable HTTP
-- 授权：`Authorization: Bearer <MCD_MCP_TOKEN>`，只从进程环境变量读取
-- 客户端：官方 TypeScript MCP SDK `@modelcontextprotocol/client`
-- 本项目对外：本地 stdio MCP Server，使用 `@modelcontextprotocol/server`
+- 鉴权：从进程环境变量 `MCD_MCP_TOKEN` 读取 Token，以 Bearer 请求头发送
+- 本项目对外：stdio MCP Server，提供 `search_meals` 与 `plan_meal_alternatives`
 
-真实 Token 不保存在源码、示例配置、日志或测试中。项目不会将 Token 放到 MCP 工具结果里。
+项目通过官方 TypeScript MCP SDK 连接远端 Server。真实 Token 不进入源码、配置示例、日志或工具输出。
 
-## 实际使用的官方工具
+## 实际调用的官方工具
 
-| Tool | 调用时机 | 业务价值 |
+| Tool | 用途 | 业务价值 |
 | --- | --- | --- |
-| `query-nearby-stores` | 根据城市、地点关键词和取餐方式搜索门店 | 确定可比较的营业门店与官方距离 |
-| `query-meals` | 获取来源门店和各候选门店当前菜单 | 证明餐品在该店实际可售，核对编码和名称 |
-| `query-meal-detail` | 获取每件餐品的默认套餐组成 | 避免把默认配餐不同的套餐当成同一餐 |
-| `calculate-price` | 对每家店的相同购物篮核价 | 获取可比较的官方应付金额，而非仅使用菜单标价 |
-| `query-store-coupons` | 用户选择比较优惠券时 | 取得门店当前可用券，再通过 `calculate-price` 试算 |
+| `query-nearby-stores` | 按城市、地点和取餐方式找当前营业门店 | 确定可查询门店和官方距离 |
+| `query-meals` | 读取各门店当前在售菜单 | 判断目标餐品是否列在当前菜单，寻找候选 |
+| `query-meal-detail` | 检查单品或套餐默认组成 | 区分原餐与默认组成不同的方案，验证候选餐品 |
+| `calculate-price` | 对完整购物篮核价 | 只展示官方确认餐品及数量一致的整单金额 |
 
-所有调用均为真实官方 MCP Tool 调用。`doctor` 使用 `tools/list` 检查这些 Tool 是否可用。
+`doctor` 还通过 MCP `tools/list` 检查这些工具是否存在。
 
-## 典型调用流程
+## 调用流程
 
 ```mermaid
 flowchart TD
-  A[用户输入城市、地点、餐品和数量] --> B[query-nearby-stores]
-  B --> C[来源门店 query-meals]
-  C --> D{餐品名称是否唯一?}
-  D -- 否 --> E[返回候选名称和编码，请用户明确选择]
-  D -- 是 --> F[来源门店 query-meal-detail]
-  F --> G[逐店 query-meals + query-meal-detail]
-  G --> H{编码、名称、默认组成相同?}
-  H -- 否 --> I[标记不可比，不参与排名]
-  H -- 是 --> J[calculate-price 基础报价]
-  J --> K{用户要求比较优惠券?}
-  K -- 是 --> L[query-store-coupons + calculate-price 试算]
-  K -- 否 --> M[按官方价格与距离排序]
-  L --> M
+  A[用户输入位置、目标餐品、锁定项及预算] --> B[query-nearby-stores]
+  B --> C[逐店 query-meals]
+  C --> D{目标餐品名称或编码唯一?}
+  D -- 否 --> E[返回候选，请用户明确选择]
+  D -- 是 --> F[query-meal-detail 核验原餐默认组成]
+  F --> G{某店能提供完整原餐?}
+  G -- 是 --> H[calculate-price 整单核价，标记 exact]
+  G -- 否 --> I{用户允许替换缺少的餐品?}
+  I -- 否 --> J[标记 unavailable]
+  I -- 是 --> K[同官方菜单分类内筛选候选并验证详情]
+  K --> L[calculate-price 对每个替代购物篮整单核价]
+  L --> M[仅展示已核价且在预算内的 alternatives]
 ```
 
-## 关键数据处理
+## 处理规则
 
-1. `query-meals` 的餐品详情在 `data.meals` 字典中，以餐品编码为键；分类列表只用于展示分类，不能作为价格来源。
-2. `calculate-price` 的 `data.price` 是整数“分”，例如 `2550` 表示 `¥25.50`。项目对金额做整数校验后再换算。
-3. 核价返回的 `productList` 必须与请求的编码和数量完全一致，否则该门店标为 `unverified`。
-4. 有歧义的名称不会自动选第一个结果；用户需用精确名称或编码重新查询。
-5. 逐店错误不会中断其他门店的比较，而是把该店标记为 `unverified` 并说明原因。
-6. 优惠券试算只接受对同一购物篮成功核价且金额低于基础报价的结果，最多试算 8 个券与餐品组合/店；达到上限则显示 `partial`。
+1. 从所有候选门店的 `data.meals` 解析目标商品。名称有多个匹配时要求用户指定编码；所有门店均无该餐品时不猜测它的类别。
+2. 原餐必须具备相同的餐品编码、名称和默认套餐组合。若默认组合不同，输出变化内容，按备选方案处理。
+3. 自动替代候选必须出现在目标门店当前菜单、与原餐共享足够明确的官方菜单分类，并通过 `query-meal-detail` 验证。宽泛的“小食甜品/其他”等分类不用于自动替代；用户可用 `replacementQueries` 显式指定跨分类备选，这些餐品仍须通过官方菜单与详情核验。
+4. 使用 `calculate-price` 的整数分单位 `data.price` 生成元单位金额，并核对返回的 `productList` 与请求购物篮的编码及数量完全一致。
+5. 用户可将餐品设为不可替换。可选预算按官方整单金额过滤；超预算时返回已核实的最低报价。
+6. 一家门店的菜单或核价失败不影响其他门店，失败门店和原因单独呈现。候选组合试算次数有上限，不声称穷举所有可能方案。
 
-## 范围与业务价值
+## 业务价值与边界
 
-核心场景是“同一餐去哪家店买”，解决顾客在附近门店之间无法直接比较同款可售状态和官方实付价格的问题。输出同时保留最低价和最近门店，便于用户自行权衡。项目不替用户下单，也不推断官方没有提供的排队时间、路线耗时或库存信息。
+作品解决“原餐在某店当前菜单中找不到，下一步怎么办”的问题：先找仍可购买原餐的门店，再提供用户可自行确认的备选餐，并给出官方整单金额。菜单缺席不代表实时库存不足；菜单分类相同也不代表口味、成分、营养或过敏原相同。项目不调用下单、领券或取消订单工具。
