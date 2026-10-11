@@ -1,0 +1,93 @@
+{
+  "status": "ok",
+  "sampledAt": "2026-10-10T13:40:08.860Z",
+  "mode": "pickup",
+  "query": {
+    "city": "上海",
+    "keyword": "人民广场",
+    "items": [
+      {
+        "code": "1100",
+        "name": "巨无霸",
+        "quantity": 1
+      },
+      {
+        "code": "4810",
+        "name": "薯条",
+        "quantity": 1
+      }
+    ]
+  },
+  "comparedStores": 5,
+  "foundCount": 5,
+  "cheapestStoreCode": "1450713",
+  "nearestVerifiedStoreCode": "1450713",
+  "results": [
+    {
+      "storeCode": "1450713",
+      "storeName": "麦当劳上海黄浦华旭国际大厦餐厅",
+      "address": "南京东路街道西藏中路336号",
+      "distanceMeters": 144,
+      "status": "quoted",
+      "basePriceYuan": "39.00",
+      "finalPriceYuan": "39.00",
+      "discountYuan": "0.00",
+      "coupon": null,
+      "couponCheck": "not_requested"
+    },
+    {
+      "storeCode": "1450441",
+      "storeName": "麦当劳上海福州路餐厅",
+      "address": "福州路666号",
+      "distanceMeters": 235,
+      "status": "quoted",
+      "basePriceYuan": "39.00",
+      "finalPriceYuan": "39.00",
+      "discountYuan": "0.00",
+      "coupon": null,
+      "couponCheck": "not_requested"
+    },
+    {
+      "storeCode": "1450056",
+      "storeName": "麦当劳上海食品一店餐厅",
+      "address": "南京东路720号",
+      "distanceMeters": 355,
+      "status": "quoted",
+      "basePriceYuan": "41.00",
+      "finalPriceYuan": "41.00",
+      "discountYuan": "0.00",
+      "coupon": null,
+      "couponCheck": "not_requested"
+    },
+    {
+      "storeCode": "1450195",
+      "storeName": "麦当劳上海雅居乐餐厅",
+      "address": "西藏中路525号",
+      "distanceMeters": 382,
+      "status": "quoted",
+      "basePriceYuan": "39.00",
+      "finalPriceYuan": "39.00",
+      "discountYuan": "0.00",
+      "coupon": null,
+      "couponCheck": "not_requested"
+    },
+    {
+      "storeCode": "1450124",
+      "storeName": "麦当劳上海南京西路NX258餐厅",
+      "address": "南京西路258号1幢一层",
+      "distanceMeters": 412,
+      "status": "quoted",
+      "basePriceYuan": "40.50",
+      "finalPriceYuan": "40.50",
+      "discountYuan": "0.00",
+      "coupon": null,
+      "couponCheck": "not_requested"
+    }
+  ],
+  "notes": [
+    "价格来自官方 calculate-price，单位已由分换算为元。",
+    "距离来自官方门店查询；未计算步行时间或排队时间。",
+    "仅比较菜单编码、名称及默认套餐组成一致的餐品。",
+    "本工具只查询，不创建订单；最终价格和可售状态以实际下单页为准。"
+  ]
+}

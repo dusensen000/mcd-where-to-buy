@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mcd-where-to-buy": {
+      "command": "node",
+      "args": ["${PROJECT_DIR}/src/server.js"],
+      "env": {
+        "MCD_MCP_TOKEN": "${MCD_MCP_TOKEN}",
+        "MCD_MCP_URL": "https://mcp.mcd.cn"
+      }
+    }
+  }
+}
